@@ -1,0 +1,169 @@
+﻿@model ChicagoIncidentsDataVisualizer.Models.Top5Sssa;
+@{
+    ViewData["Title"] = "Top 5 SSA";
+}
+
+<h2>Top 5 SSAs.</h2>
+<p>Here you can search for the Top 5 SSAs for a specific day in regards of the number of requests for that specific day.
+    Or to search for the Top 5 days in regards of requests for that specific day for your SSA of choice.
+</p>
+<div></div>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-6">
+            <input id="ssa" name="ssa" type='text' class="form-control" onkeyup="checkSsa()" placeholder="SSA" />
+        </div>
+        <div class="col-xs-6">
+            <input type='text' class="form-control" id="datepicker" name="creationDate" onchange="checkDate()" placeholder="Date" />
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-xs-12">
+            <button id="test" type="submit" class="btn btn-primary" onclick="getData()">Execute</button>
+        </div>
+    </div>
+    
+</div>
+
+
+
+<div class="box-body">
+    <div id="container" style="height: 400px; min-width: 310px"></div>
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+        $(function () {
+            $('#datepicker').datepicker({
+                format: "dd-mm-yyyy",
+                language: "en",
+                autoclose: true,
+                todayHighlight: true
+            });
+        });
+
+        function checkSsa() {
+            if (document.getElementById('ssa').value != '') {
+                document.getElementById('datepicker').disabled = true;
+                checkInp();
+            }
+            else {
+                document.getElementById('datepicker').disabled = false;
+            }
+        }
+
+        function checkInp() {
+            var x = document.getElementById('ssa').value;
+            if (isNaN(x)) {
+                alert("Must input numbers");
+                return false;
+            }
+        }
+
+        function checkDate() {
+            if (document.getElementById('datepicker').value != '') {
+                document.getElementById('ssa').disabled = true;
+            }
+            else {
+                document.getElementById('ssa').disabled = false;
+            }
+        }
+
+        function getData() {
+            var date = $("#datepicker").val();
+            if (date != '') {
+                date = date.split('-').reverse().join('-');
+            }
+            else {
+                date = ' ';
+            }
+            var ssa = $("#ssa").val();
+            $.ajax({
+                type: "GET",
+                url: '/api/queries/getTop5Ssa/' + date + '/' + ssa,
+                contentType: "application/json",
+                dataType: "json",
+                success: function (response) {
+                    var aData = response;
+                    var aLabels = [];
+                    var aDataset = [];
+                    var aLegend = '';
+                    var title = '';
+                    if (ssa != '') {
+                        aData.forEach(function (test) {
+                            aLabels.push(test["Creation Date"].split('-').reverse().join('-'));
+                            aDataset.push([test["Service Request Count"]]);
+                            aLegend = 'SSA ' + test["SSA"];
+                        });
+                        title = ''
+                    } else {
+                        aData.forEach(function (test) {
+                            aLabels.push(test["SSA"]);
+                            aDataset.push([test["Service Request Count"]]);
+                            aLegend = test["Creation Date"].split('-').reverse().join('-');
+                        });
+                        title = 'SSA';
+                    }
+                    
+                    Highcharts.chart('container', {
+                        chart: {
+                            type: 'bar'
+                        },
+                        title: {
+                            text: 'Top 5 SSAs for ' + aLegend.toString()
+                        },
+                        //subtitle: {
+                        //    text: 'testing the subtitle'
+                        //},
+                        xAxis: {
+                            categories: aLabels,
+                            title: {
+                                text: title
+                            }
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Number of requests',
+                                align: 'high'
+                            },
+                            labels: {
+                                overflow: 'justify'
+                            }
+                        },
+                        tooltip: {
+                            valueSuffix: ' requests'
+                        },
+                        plotOptions: {
+                            bar: {
+                                dataLabels: {
+                                    enabled: true
+                                }
+                            }
+                        },
+                        //legend: {
+                        //    layout: 'vertical',
+                        //    align: 'right',
+                        //    verticalAlign: 'top',
+                        //    x: -40,
+                        //    y: 80,
+                        //    floating: true,
+                        //    borderWidth: 1,
+                        //    backgroundColor: ('#FFFFFF'),//(Highcharts.theme && Highcharts.theme.legendBackgroundColor) ||
+                        //    shadow: true
+                        //},
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: aLegend,
+                            data: aDataset
+                        }]
+                    });
+                }
+            })
+        }
+    </script>
+}

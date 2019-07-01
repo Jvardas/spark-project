@@ -1,0 +1,101 @@
+﻿
+@{
+    ViewData["Title"] = "TotalRequestsPerTypeAndDay";
+}
+
+<h2>TotalRequestsPerTypeAndDay</h2>
+
+<p>
+    Here you can search the total requests for a specific day per type.
+</p>
+
+<br />
+
+<div class="container">
+    <div class="row">
+        <input type='text' class="form-control" id="datepicker" name="creationDate" placeholder="Date" />
+    </div>
+    <br />
+    <div class="row">
+        <button id="test" type="submit" class="btn btn-primary" onclick="getData()">Execute</button>
+    </div>
+
+</div>
+
+<div class="box-body">
+    <div id="container" style="height: 400px; min-width: 310px"></div>
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+        $(function () {
+            $('#datepicker').datepicker({
+                format: "dd-mm-yyyy",
+                language: "en",
+                autoclose: true,
+                todayHighlight: true
+            });
+        });
+
+        function getData() {
+
+            var date = $("#datepicker").val();
+            if (date != '') {
+                date = date.split('-').reverse().join('-');
+            }
+            else {
+                date = ' ';
+            }
+
+            $.ajax({
+                type: "GET",
+                url: '/api/queries/getTotalRequestsPerType/' + date,
+                contentType: "application/json",
+                dataType: "json",
+                success: function (response) {
+                    var aData = response;
+                    var aLabels = [];
+                    var aDataset = [];
+
+                    aData.forEach(function (test) {
+                        aLabels.push(test["Type of Service Request"]);
+                        aDataset.push([test["Total Requests"]]);
+                    });
+
+                    aDataset = aDataset.sort(function (a, b) { return a[0] > b[0] });
+                    Highcharts.chart('container', {
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'Total requests for ' + date.split('-').reverse().join('-') + ' per type'
+                        },
+                        xAxis: {
+                            categories: aLabels,
+                            crosshair: true
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Total Requests'
+                            }
+                        },
+                        plotOptions: {
+                            column: {
+                                pointPadding: 0.2,
+                                borderWidth: 0
+                            }
+                        },
+                        series: [{
+                            name: 'Type of Request',
+                            data: aDataset
+                        }]
+                    });
+                }
+            });
+        }
+
+    </script>
+}
+

@@ -1,0 +1,54 @@
+﻿@model ChicagoIncidentsDataVisualizer.Models.CompletedRequestsPerDay
+@{
+    ViewData["Title"] = "ComplReqsPerDay";
+}
+
+<h2>Completed Requests per day</h2>
+<h5>Here you can find the requests that are completed. You can search in every date range you like.</h5>
+<div></div>
+<div class="box-body">
+    <div id="container" style="height: 400px; min-width: 310px"></div>
+</div>
+
+
+@section Scripts {
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                url: '/api/queries/getRequestsPerDay/',
+                contentType: "application/json",
+                dataType: "json",
+                success: function (response) {
+                    var aData = response;
+                    window.aDatasets1 = [];
+                    aData.forEach(function (test) {
+                        aDatasets1.push([moment(test["Completion Date"]).valueOf(), test["Completed Requests Num"]]);
+                    });
+                    aDatasets1 = aDatasets1.sort(function (a, b) { return a[0] > b[0]; });
+                    Highcharts.stockChart('container', {
+
+                        rangeSelector: {
+                            selected: 1
+                        },
+
+                        title: {
+                            text: 'Completed Requests per Day'
+                        },
+
+                        series: [{
+                            name: 'Completed Requests',
+                            data: aDatasets1,
+                            tooltip: {
+                                //valueDecimals: 2
+                            },
+                            turboThreshold: 1000000
+                        }]
+                    });
+                }
+            })
+        });
+        
+    </script>
+}

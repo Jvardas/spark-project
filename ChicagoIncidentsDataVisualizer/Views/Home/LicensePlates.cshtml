@@ -1,0 +1,92 @@
+﻿
+@{
+    ViewData["Title"] = "License Plates";
+}
+
+<h2>License Plates</h2>
+
+<p>
+    Here you can search the number of violations for each license plate of the vehicles.
+</p>
+
+<br />
+
+<div class="container">
+    <div class="row">
+        <input type='text' class="form-control" id="numOfComplaints" placeholder="Number of complaints" />
+    </div>
+    <br />
+    <div class="row">
+        <button id="test" type="submit" class="btn btn-primary" onclick="getData()">Execute</button>
+    </div>
+
+</div>
+
+<div class="box-body">
+    <div id="container" style="height: 400px; min-width: 310px"></div>
+</div>
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        function getData() {
+            var lp = ' ';
+            $.ajax({
+                type: "GET",
+                url: '/api/queries/getNumOfComplaintsPerLicensePlates/' + lp +'/' + $('#numOfComplaints').val(),
+                contentType: "application/json",
+                dataType: "json",
+                success: function (response) {
+                    var aData = response;
+                    var aLabels = [];
+                    var aDataset = [];
+
+                    aData.forEach(function (test) {
+                        aLabels.push(test["License Plate"]);
+                        aDataset.push([test["Number of complaints"]]);
+                    });
+
+                    aDataset = aDataset.sort(function (a, b) { return a[0] > b[0] });
+                    Highcharts.chart('container', {
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'Number of complaints'
+                        },
+                        xAxis: {
+                            categories: aLabels,
+                            crosshair: true
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                //text: 'Rainfall (mm)'
+                            }
+                        },
+                        //tooltip: {
+                        //    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        //    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                        //        '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                        //    footerFormat: '</table>',
+                        //    shared: true,
+                        //    useHTML: true
+                        //},
+                        plotOptions: {
+                            column: {
+                                pointPadding: 0.2,
+                                borderWidth: 0
+                            }
+                        },
+                        series: [{
+                            name: 'License Plate',
+                            data: aDataset
+                        }]
+                    });
+                }
+            });
+        }
+
+    </script>
+}
