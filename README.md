@@ -1,5 +1,6 @@
 Spark Project 
 ========================================================
+[![CodeFactor](https://www.codefactor.io/repository/github/jvardas/spark-project/badge)](https://www.codefactor.io/repository/github/jvardas/spark-project)
 
 This constitutes a segment of a project undertaken as part of the [master's course](https://www.di.uoa.gr/studies/graduate) at the Department of Informatics and Telecommunications at the University of Athens. 
 Specific details regarding the course can be accessed [here](https://www.di.uoa.gr/sites/default/files/documents/grad/grad_cs_courses/%CE%9C111%20%CE%94%CE%B9%CE%B1%CF%87%CE%B5%CE%AF%CF%81%CE%B9%CF%83%CE%B7%20%CE%9C%CE%B5%CE%B3%CE%AC%CE%BB%CF%89%CE%BD%20%CE%94%CE%B5%CE%B4%CE%BF%CE%BC%CE%AD%CE%BD%CF%89%CE%BD.pdf), along with a corresponding description.
